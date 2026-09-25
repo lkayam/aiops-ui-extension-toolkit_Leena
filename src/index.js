@@ -68,6 +68,26 @@ export const MonitorBoxes = {
   }
 };
 
+export const AiOpsDashboardPanel = {
+  renderer: ReactRenderer,
+  state: {
+    component: () => import('./panels/aiops-dashboard.panel'),
+    stateToPropMapper: (state) => (
+      {...state}
+    )
+  }
+};
+
+export const AlertSummaryDashboardPanel = {
+  renderer: ReactRenderer,
+  state: {
+    component: () => import('./panels/alert-summary-dashboard.panel'),
+    stateToPropMapper: (state) => (
+      {...state}
+    )
+  }
+};
+
 window.registerCustomPanel('hello-world', SimpleSamplePanel);
 window.registerCustomPanel('alerts-workflow', AlertsWorkflowPanel);
 window.registerCustomPanel('top-n', TopNPanel);
@@ -76,3 +96,5 @@ window.registerCustomPanel('application-heatmap', ApplicationHeatmapPanel);
 window.registerCustomPanel('alerts-timeline', AlertsTimelinePanel);
 window.registerCustomPanel('incidents-pie-chart', IncidentsPieChart);
 window.registerCustomPanel('monitor-boxes', MonitorBoxes);
+window.registerCustomPanel('aiops-dashboard', AiOpsDashboardPanel);
+window.registerCustomPanel('alert-summary-dashboard', AlertSummaryDashboardPanel);

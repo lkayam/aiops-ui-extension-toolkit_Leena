@@ -1,0 +1,248 @@
+/**
+ * © Copyright IBM Corp. 2022, 2025
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useEffect, useMemo, useState } from 'react';
+import ReactDOM from 'react-dom/client';
+// @ts-ignore
+import { SimpleBarChart, GroupedBarChart } from '@carbon/charts-react';
+// @ts-ignore
+import getReactRenderer from '@ibm/akora-renderer-react';
+import { InlineLoading, InlineNotification } from '@carbon/react';
+
+import getAlertSeverityCounts from '../../helpers/getAlertSeverityCounts';
+import getAlertLocationCounts from '../../helpers/getAlertLocationCounts';
+import getAlertSeverityByFilter, { FilterSummaryEntry } from '../../helpers/getAlertSeverityByFilter';
+import { conditionSetToAPIQuery } from '../shared/utils/filterUtils';
+import type { AlertFilter } from '../shared/monitor-box/MonitorBoxTypes';
+import { COLORS_STROKE, SEVERITIES } from '../constants';
+
+import '@carbon/charts-react/styles.css';
+import './alert-summary-dashboard.scss';
+
+const ReactRenderer = getReactRenderer(React, ReactDOM);
+const { useAkoraState } = ReactRenderer.components;
+
+const CLASS = 'alert-summary-dashboard';
+const TENANT_ID = 'cfd95b7e-3bc7-4006-a4a8-a73a79c71255';
+
+// ---------------------------------------------------------------------------
+// Carbon chart color scale — map each severity label to its brand colour
+// ---------------------------------------------------------------------------
+
+const SEVERITY_COLOR_SCALE = SEVERITIES.reduce<{ [label: string]: string }>(
+  (acc, label, idx) => {
+    acc[label] = COLORS_STROKE[idx] ?? '#8d8d8d';
+    return acc;
+  },
+  {}
+);
+
+// ---------------------------------------------------------------------------
+// Shared chart option factories
+// ---------------------------------------------------------------------------
+
+function makeSeverityBarOptions(loading: boolean) {
+  return {
+    axes: {
+      left: { title: 'Alert count', mapsTo: 'value', scaleType: 'linear' },
+      bottom: { title: 'Severity', mapsTo: 'group', scaleType: 'labels' },
+    },
+    bars: { maxWidth: 48 },
+    color: { scale: SEVERITY_COLOR_SCALE },
+    data: { loading },
+    height: '280px',
+    legend: { enabled: false },
+  };
+}
+
+function makeLocationBarOptions(loading: boolean) {
+  return {
+    axes: {
+      left: { title: 'Alert count', mapsTo: 'value', scaleType: 'linear' },
+      bottom: { title: 'Resource / Location', mapsTo: 'group', scaleType: 'labels' },
+    },
+    bars: { maxWidth: 40 },
+    data: { loading },
+    height: '300px',
+    legend: { enabled: false },
+  };
+}
+
+function makeFilterSeverityOptions(loading: boolean) {
+  return {
+    axes: {
+      left: { title: 'Alert count', mapsTo: 'value', scaleType: 'linear' },
+      // 'filterName' is the x-axis category; 'group' drives the colour series (severity)
+      bottom: { title: 'Filter', mapsTo: 'filterName', scaleType: 'labels' },
+    },
+    color: { scale: SEVERITY_COLOR_SCALE },
+    data: { loading },
+    height: '320px',
+    legend: { enabled: true },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+const AlertSummaryDashboard = (props: any) => {
+  const { alertsQuery, alertSummaryQuery } = props;
+
+  const { state, app } = useAkoraState();
+  let title = 'Alert Summary Dashboard';
+  try {
+    const targetUrl = app.resolvePathExpression(state.path);
+    title = app.getStateForPath(targetUrl)?.title ?? title;
+  } catch {
+    // fall back to default title if Akora state is not yet ready
+  }
+
+  // ---- raw data from parent-supplied queries --------------------------------
+  const alertRows: Array<{ fields: (string | null)[] }> =
+    alertsQuery?.data?.tenant?.alerts?.rows ?? [];
+  const summaryEntries: Array<{ severity: number; count: number }> =
+    alertSummaryQuery?.data?.tenant?.alertSummary?.summary ?? [];
+
+  const parentLoading = alertsQuery?.loading || alertSummaryQuery?.loading;
+
+  // ---- AIOps filters -------------------------------------------------------
+  const [filtersLoading, setFiltersLoading] = useState(false);
+  const [filtersError, setFiltersError] = useState<string | null>(null);
+  const [filterSummaries, setFilterSummaries] = useState<FilterSummaryEntry[]>([]);
+
+  useEffect(() => {
+    setFiltersLoading(true);
+    setFiltersError(null);
+
+    window.akoraConfig.baseState.API.contentAnalyticsAPI
+      .getFiltersViews({ tenantId: TENANT_ID, condition: "type = 'alert'" })
+      .then((data: any) => {
+        const rawFilters: AlertFilter[] = data?.tenant?.filtersViews ?? [];
+        if (rawFilters.length === 0) {
+          setFilterSummaries([]);
+          setFiltersLoading(false);
+          return;
+        }
+
+        const parsedFilters = rawFilters.map((f: AlertFilter) => ({
+          filterName: f.name,
+          filterClause: conditionSetToAPIQuery(f.conditionSet),
+        }));
+
+        // Fetch alertSummary per filter in parallel
+        Promise.all(
+          parsedFilters.map(({ filterName, filterClause }) =>
+            window.akoraConfig.baseState.API.contentAnalyticsAPI
+              .getAlertSummary({
+                tenantId: TENANT_ID,
+                filter: filterClause,
+                groupBy: ['severity'],
+              })
+              .then((res: any) => ({
+                filterName,
+                summary: res?.tenant?.alertSummary?.summary ?? [],
+              }))
+              .catch((): FilterSummaryEntry => ({ filterName, summary: [] }))
+          )
+        ).then((results: FilterSummaryEntry[]) => {
+          setFilterSummaries(results.filter(r => r.summary.some(s => s.count > 0)));
+          setFiltersLoading(false);
+        });
+      })
+      .catch((err: any) => {
+        setFiltersError(String(err?.message ?? err));
+        setFiltersLoading(false);
+      });
+  // Only run once on mount — filters are static for the lifetime of the view
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---- derived chart data --------------------------------------------------
+  const severityBarData = useMemo(
+    () => getAlertSeverityCounts(summaryEntries),
+    [summaryEntries]
+  );
+
+  const locationBarData = useMemo(
+    () => getAlertLocationCounts(alertRows),
+    [alertRows]
+  );
+
+  const filterSeverityData = useMemo(
+    () => getAlertSeverityByFilter(filterSummaries),
+    [filterSummaries]
+  );
+
+  // ---- chart options -------------------------------------------------------
+  const severityBarOptions = useMemo(
+    () => makeSeverityBarOptions(parentLoading),
+    [parentLoading]
+  );
+
+  const locationBarOptions = useMemo(
+    () => makeLocationBarOptions(parentLoading),
+    [parentLoading]
+  );
+
+  const filterSeverityOptions = useMemo(
+    () => makeFilterSeverityOptions(filtersLoading),
+    [filtersLoading]
+  );
+
+  // ---- render --------------------------------------------------------------
+  return (
+    <div className={CLASS} role="main">
+      {/* Page heading */}
+      <div className={`${CLASS}__heading`}>{title}</div>
+
+      {/* ---- Chart 1: Alert counts by severity ---- */}
+      <div className={`${CLASS}__section`}>
+        <div className={`${CLASS}__section-title`}>Alert Counts by Severity</div>
+        {!parentLoading && severityBarData.length === 0 ? (
+          <p className={`${CLASS}__empty`}>No alert data available.</p>
+        ) : (
+          <SimpleBarChart data={severityBarData} options={severityBarOptions} />
+        )}
+      </div>
+
+      {/* ---- Chart 2: Alert counts by location ---- */}
+      <div className={`${CLASS}__section`}>
+        <div className={`${CLASS}__section-title`}>Alert Counts by Location (Top 15 Resources)</div>
+        {!parentLoading && locationBarData.length === 0 ? (
+          <p className={`${CLASS}__empty`}>No resource data available.</p>
+        ) : (
+          <SimpleBarChart data={locationBarData} options={locationBarOptions} />
+        )}
+      </div>
+
+      {/* ---- Chart 3: Severity breakdown per filter ---- */}
+      <div className={`${CLASS}__section`}>
+        <div className={`${CLASS}__section-title`}>Alert Severity Breakdown per Filter</div>
+        {filtersLoading && (
+          <InlineLoading description="Loading filter summaries…" />
+        )}
+        {!filtersLoading && filtersError && (
+          <InlineNotification
+            kind="error"
+            title="Error loading filters"
+            subtitle={filtersError}
+            hideCloseButton
+          />
+        )}
+        {!filtersLoading && !filtersError && filterSeverityData.length === 0 && (
+          <p className={`${CLASS}__empty`}>
+            No AIOps filters with active alerts found.
+          </p>
+        )}
+        {!filtersLoading && !filtersError && filterSeverityData.length > 0 && (
+          <GroupedBarChart data={filterSeverityData} options={filterSeverityOptions} />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AlertSummaryDashboard;

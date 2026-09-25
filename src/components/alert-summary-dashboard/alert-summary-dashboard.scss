@@ -1,0 +1,47 @@
+/**
+ * © Copyright IBM Corp. 2022, 2025
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.hdm--custom-layout-container {
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    border: unset !important;
+  }
+
+  .alert-summary-dashboard {
+    background: #f4f4f4;
+    min-height: 100vh;
+    padding: 1.5rem 1.5rem 3rem;
+
+    &__heading {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #161616;
+      margin-bottom: 1.5rem;
+    }
+
+    // ---- Sections ----------------------------------------------------------
+    &__section {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem 1.5rem;
+    }
+
+    &__section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #161616;
+      margin-bottom: 1rem;
+    }
+
+    &__empty {
+      color: #6f6f6f;
+      font-size: 0.875rem;
+    }
+  }
+}

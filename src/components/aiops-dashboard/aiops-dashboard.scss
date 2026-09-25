@@ -1,0 +1,192 @@
+/**
+ * © Copyright IBM Corp. 2022, 2025
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.hdm--custom-layout-container {
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    border: unset !important;
+  }
+
+  .aiops-dashboard {
+    background: #f4f4f4;
+    min-height: 100vh;
+    padding: 1.5rem 1.5rem 3rem;
+
+    &__heading {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #161616;
+      margin-bottom: 1.5rem;
+    }
+
+    // ---- KPI bar --------------------------------------------------------
+    &__kpi-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    &__kpi-card {
+      background: #ffffff;
+      border-left: 4px solid #8d8d8d;
+      border-radius: 2px;
+      flex: 1 1 140px;
+      max-width: 200px;
+      padding: 1rem 1.25rem;
+
+      &--critical {
+        border-left-color: #da1e28;
+      }
+
+      &--major {
+        border-left-color: #ff832b;
+      }
+
+      &--info {
+        border-left-color: #0f62fe;
+      }
+
+      &--normal {
+        border-left-color: #8d8d8d;
+      }
+    }
+
+    &__kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.1;
+      color: #161616;
+    }
+
+    &__kpi-label {
+      font-size: 0.75rem;
+      color: #525252;
+      margin-top: 0.25rem;
+    }
+
+    // ---- AI insight card ------------------------------------------------
+    &__ai-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem;
+    }
+
+    &__ai-header {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    &__ai-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #161616;
+    }
+
+    &__ai-text {
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: #161616;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    &__ai-empty {
+      font-size: 0.875rem;
+      color: #6f6f6f;
+      margin: 0;
+    }
+
+    &__ai-error {
+      font-size: 0.875rem;
+      color: #da1e28;
+      margin: 0;
+    }
+
+    // ---- Sections -------------------------------------------------------
+    &__section {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem 1.5rem;
+    }
+
+    &__section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #161616;
+      margin-bottom: 1rem;
+    }
+
+    &__row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    &__section--half {
+      flex: 1 1 320px;
+      margin-bottom: 0;
+    }
+
+    &__empty {
+      color: #6f6f6f;
+      font-size: 0.875rem;
+    }
+
+    // ---- Table ----------------------------------------------------------
+    &__table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    &__table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+
+      th {
+        background: #f4f4f4;
+        border-bottom: 2px solid #e0e0e0;
+        color: #525252;
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      td {
+        border-bottom: 1px solid #e0e0e0;
+        color: #161616;
+        padding: 0.5rem 0.75rem;
+        vertical-align: middle;
+      }
+
+      tr:hover td {
+        background: #f4f4f4;
+      }
+    }
+
+    &__table-summary {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &__table-flags {
+      letter-spacing: 0.25rem;
+      white-space: nowrap;
+    }
+  }
+}

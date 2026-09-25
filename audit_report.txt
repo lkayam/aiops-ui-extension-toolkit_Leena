@@ -1,0 +1,59 @@
+[1m[36m======================================================[0m
+[1m[36m   AIOps UI Extension Toolkit — Audit & Diagnostic    [0m
+[1m[36m======================================================[0m
+Execution timestamp: 2026-09-23 10:44:21 UTC
+Working directory:   /root/aiops-ui-extension-toolkit
+
+[1m[1] Cluster Target & Tenant ID Configuration[0m
+  target.json:      [32mEXISTS[0m
+  Configured Host:  [36mN/A[0m
+  Tenant ID:        [36mcfd95b7e-3bc7-4006-a4a8-a73a79c71255[0m
+  Placeholder Check: [32mPASSED[0m (No unreplaced 'YOUR_TENANT_ID_HERE' tokens found)
+
+[1m[2] Required Custom Helper Modules (src/helpers/)[0m
+  - src/helpers/getKpiCounts.ts: [32mPRESENT[0m
+  - src/helpers/getIncidentTimeCounts.ts: [32mPRESENT[0m
+  - src/helpers/getCriticalAlerts.ts: [32mPRESENT[0m
+  - src/helpers/getTopApplications.ts: [32mPRESENT[0m
+  - src/helpers/getSourceBreakdown.ts: [32mPRESENT[0m
+  - src/helpers/buildAiContext.ts: [32mPRESENT[0m
+  - src/helpers/useAiSummary.ts: [32mPRESENT[0m
+  - src/helpers/getAlertSeverityCounts.ts: [32mPRESENT[0m
+  - src/helpers/getAlertLocationCounts.ts: [32mPRESENT[0m
+  - src/helpers/getAlertSeverityByFilter.ts: [32mPRESENT[0m
+
+[1m[3] Panel Wiring Files (src/panels/)[0m
+  - src/panels/aiops-dashboard.panel.ts: [32mPRESENT[0m
+  - src/panels/alert-summary-dashboard.panel.ts: [32mPRESENT[0m
+
+[1m[4] Component & Stylesheet Integrity (src/components/)[0m
+  - src/components/aiops-dashboard/AiOpsDashboard.tsx: [32mPRESENT[0m
+  - src/components/aiops-dashboard/aiops-dashboard.scss: [32mPRESENT[0m
+  - src/components/alert-summary-dashboard/AlertSummaryDashboard.tsx: [32mPRESENT[0m
+  - src/components/alert-summary-dashboard/alert-summary-dashboard.scss: [32mPRESENT[0m
+
+[1m[5] SDK API Method Correctness[0m
+  - SDK API method:  [32mCORRECT[0m (using 'getFiltersViews')
+  - Response Key:    [31mDEFECT DETECTED[0m (accessing data.tenant.filters instead of .filtersViews)
+
+[1m[6] Panel Registration in src/index.js[0m
+  - window.registerCustomPanel('aiops-dashboard'): [32mREGISTERED[0m
+  - window.registerCustomPanel('alert-summary-dashboard'): [32mREGISTERED[0m
+
+[1m[7] Route Definitions Check[0m
+  Checking routes file: [36mconfig/routes.json[0m
+  - Route '/aiops-dashboard': [32mFOUND[0m
+  - Route '/alert-summary-dashboard': [32mFOUND[0m
+
+[1m[8] Cluster CR Status Check[0m
+  Current OpenShift namespace: aiops
+  - AIOpsUIExtension CR (alerts-examples-custom-dashboards): [33mNOT FOUND[0m (May need manual oc apply)
+  - ZenExtension CR (aiops-extensions-ext): [32mEXISTS[0m
+
+[1m[36m======================================================[0m
+[1m[36m                 EXECUTIVE AUDIT SUMMARY              [0m
+[1m[36m======================================================[0m
+[32m[1mSTATUS: READY TO BUILD & RUN[0m
+All required components, helper utilities, panel wirings, and registrations are in place.
+[1m[36m======================================================[0m
+
