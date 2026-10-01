@@ -133,22 +133,21 @@
       },
       {
         "path": "/aiops-dashboard",
-        "regions": {
-          "main": {
-            "bundlePath": "bundles/alerts-examples/files/alerts-examples-bundle.js",
-            "panelId": "aiops-dashboard"
-          }
-        },
-        "title": "AI Operations Dashboard"
+        "bundlePath": "bundles/alerts-examples/files/alerts-examples-bundle.js",
+        "panelId": "aiops-dashboard",
+        "title": "AI Ops Dashboard"
       },
       {
         "path": "/alert-summary-dashboard",
-        "regions": {
-          "main": {
-            "bundlePath": "bundles/alerts-examples/files/alerts-examples-bundle.js",
-            "panelId": "alert-summary-dashboard"
-          }
-        },
+	"regions": {
+            "left": {
+              "bundlePath": "bundles/alerts-examples/files/alerts-examples-bundle.js",
+              "panelId": "alerts-workflow"
+            },
+            "right": {
+              "aiopsPanel": "alertViewer"
+            }
+          },
         "title": "Alert Summary Dashboard"
       }
     ],
